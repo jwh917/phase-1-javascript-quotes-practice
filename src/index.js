@@ -13,35 +13,64 @@ function fetchQuotes(){
   fetch(quotesUrl)
   .then(response => response.json())
   .then(data => {
+  // console.log("data:", data)
 
-  // console.log(data)
+  renderQuotes(data)
 
-  data.forEach(element => {
+  })
+
+}
+
+function renderQuotes(qouteInfo){
+
+  qouteInfo.forEach(element => {
 
     // console.log(element.quote)
     // console.log(element.likes)
     // console.log(element.likes.length)
 
     let quoteLi = document.createElement("li")
+    quoteLi.className = "quote-card"
 
-    quoteLi.innerHTML =  `<li class='quote-card'>
-    <blockquote class="blockquote">
+    let deleteButton = document.createElement("button")
+    deleteButton.id = `deleteButton-${element.id}`
+    deleteButton.className = "btn-danger"
+    deleteButton.innerHTML = "Delete"
+    
+    let likeButton = document.createElement("button")
+    likeButton.id = element.id
+    likeButton.className = "btn-success"
+    likeButton.innerHTML = "Like: "
+    let likeButtonSpan = document.createElement("span")
+    likeButtonSpan.id = `span-${element.id}`
+    likeButtonSpan.innerHTML = element.likes.length
+    likeButton.appendChild(likeButtonSpan)
+
+    //pass in deleteButtonFunc and likeButtonFunc
+
+    deleteButton.addEventListener("click", () => {
+
+      deleteButtonFunc(element.id, quoteLi)
+    })
+
+    likeButton.addEventListener("click", () => {
+
+      likeButtonFunc(element.id)
+    })
+
+    quoteLi.innerHTML =  
+    `<blockquote class="blockquote">
       <p class="mb-0">${element.quote}</p>
       <footer class="blockquote-footer">Someone famous</footer>
       <br>
-      <button class='btn-success'>Likes: <span>${element.likes.length}</span></button>
-      <button class='btn-danger'>Delete</button>
     </blockquote>
-    </li>`
-    // element.quote
-
+    `
+  
+    quoteLi.appendChild(deleteButton)
+    quoteLi.appendChild(likeButton)
+  
     quoteUl.appendChild(quoteLi)
     
-  })
-
-  deleteButtonFunc()
-  likeButtonFunc()
-
   })
 
 }
@@ -96,115 +125,105 @@ function formSubmitButtonFunc(){
 
 }
 
-let idPlaceHolder = 0
 
-function deleteButtonFunc(){
-
-    // delete
-    let quotesDeleteButtons = document.querySelectorAll("button.btn-danger")
-
-
-    quotesDeleteButtons.forEach(function(currentBtn) {
-    currentBtn.addEventListener("click",function(){
+function deleteButtonFunc(quoteId, quoteLi){
   
-      // Put delete button func
+  console.log(quoteId, quoteLi)
 
-      console.log(currentBtn)
-      // console.log(currentBtn.parentNode.parentNode.parentNode)
-      // console.log(currentBtn.parentElement.parentElement.parentElement)
-      // ^Any one of the 2 above .remove()
+  quoteLi.remove()
 
-    
-      idPlaceHolder = document.querySelectorAll("button.btn-danger").length
-      
-      
-      currentBtn.parentElement.parentElement.parentElement.remove()
-
-      console.log(idPlaceHolder)
-
-
-      // `http://localhost:3000/quotes/${idPlaceHolder}/?_embed=likes`
-
-      // "http://localhost:3000/quotes/17/?_embed=likes"
-      
-      // delete fetch
-
-      fetch(`http://localhost:3000/quotes/${idPlaceHolder}/?_embed=likes`,{
-      method:'DELETE'
-      })
-      .then(response => response.json())
-      .then(data => {
-     
-      console.log(data)
-
-
-      })      
-    
+  fetch(`http://localhost:3000/quotes/${quoteId}/?_embed=likes`,{
+    method:'DELETE'
     })
-    
-  })
+    .then(response => response.json())
+    .then(data => {
+     
+    console.log(data)
 
+
+    })   
+    
 }
 
+let numHolder = 0
 
-function likeButtonFunc(){
+function renderLikes(quoteId){
+  console.log(quoteId)
+  // go thru every span set the innerHTML = ""
+  // 2nd fetch GET - getting the element.likes.length
+  // set all spans innerHTML = likes array length
+  fetch(quotesUrl)
+    .then(response => response.json())
+    .then(data => {
+    // console.log("data:", data)
+  
+    data.forEach(element => {
+      console.log(element)
+      // console.log(element.id)
+      // console.log(element.quote)
+      // console.log(element.likes)
+      // console.log(element.likes.length)
+      if(quoteId === element.id){
+        console.log("GO")
+        numHolder = element.likes.length
+      }
 
-  let quoteId = document.querySelectorAll("p.mb-0")
+    })
+    console.log(numHolder)
+    document.getElementById(`span-${quoteId}`).innerHTML = numHolder
 
-  for (let i = 0; i < quoteId.length; i++) {
-    let item = quoteId[i]
-    console.log(item)
-    console.log(item.innerHTML)
-    console.log(i)
-    console.log(i+1)
+    })
+  
+  
   }
 
-  // quoteID.forEach(function() {
-
-  //   console.log()
-
-  // })
+const quotesLikesUrl = "http://localhost:3000/likes"
 
 
-  let quoteslikeButtons = document.querySelectorAll("button.btn-success")
+function likeButtonFunc(quoteId){
 
-  quoteslikeButtons.forEach(function(currentBtn) {
-    currentBtn.addEventListener("click",function(){
+  console.log(quoteId)
+  console.log(typeof quoteId)
+        
+  fetch(quotesLikesUrl,{
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json"},
+      body: JSON.stringify(
+           {
+           "quoteId": quoteId,
+           "createdAt": 1558524360
+           }   
+      ),
+    })
+    .then(response => response.json())
+    .then(data => {
   
-      // Put delete button func
+      console.log('Success:', data)
 
-      console.log(currentBtn)
+      document.getElementById(`span-${quoteId}`).innerHTML = ""
 
-      console.log(currentBtn.parentElement)
+    })
+
+
+    // fetchQuotes()
+    renderLikes(quoteId)
 
 
 
-      // `http://localhost:3000/quotes/${idPlaceHolder}/?_embed=likes`
+   
 
-      // "http://localhost:3000/quotes/17/?_embed=likes"
-      
+}   
       // like fetch
 
-      // fetch(`http://localhost:3000/quotes/${idPlaceHolder}/?_embed=likes`,{
-      // method:'DELETE'
-      // })
-      // .then(response => response.json())
-      // .then(data => {
-     
-      // console.log(data)
       // update DOM here 
       // go thru data and get the 
       // likes array for that quote
+      // innerHTML = likes array length
       // 0 to 1, 1 to 2
 
 
-      // }) 
-
-
-
-    })
-  })
-}
 // addEventListener for like button
 
 // fetch POST TO APDATE(ADDS TO ARRAY OF LIKES) LIKES WITH A USER`
