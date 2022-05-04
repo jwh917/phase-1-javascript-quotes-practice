@@ -10,12 +10,14 @@ const quotesUrl = "http://localhost:3000/quotes?_embed=likes"
 const quoteUl = document.getElementById("quote-list")
 
 function fetchQuotes(){
+
   fetch(quotesUrl)
   .then(response => response.json())
   .then(data => {
   // console.log("data:", data)
+    document.getElementById("quote-list").innerHTML = ""
 
-  renderQuotes(data)
+    renderQuotes(data)
 
   })
 
@@ -80,7 +82,6 @@ function renderQuotes(qouteInfo){
 const newFormQuote = document.getElementById("new-quote")
 const newFormAuther = document.getElementById("author")
 
-
 function formSubmitButtonFunc(){
   const formSubmitButton = document.getElementById("new-quote-form")
 
@@ -109,18 +110,16 @@ function formSubmitButtonFunc(){
       
       })
 
-      fetch(quotesUrl)
-      .then(response => response.json())
-      .then(data => {
+      // fetch(quotesUrl)
+      // .then(response => response.json())
+      // .then(data => {
 
-        console.log(data)
+      //   console.log(data)
 
-        document.getElementById("quote-list").innerHTML = ""
-
-      })
+      //   // document.getElementById("quote-list").innerHTML = ""
+      // })
       fetchQuotes()
-      document.getElementById("new-quote-form").reset()
-
+      formSubmitButton.reset()
   })
 
 }
@@ -206,13 +205,8 @@ function likeButtonFunc(quoteId){
 
     })
 
-
     // fetchQuotes()
     renderLikes(quoteId)
-
-
-
-   
 
 }   
       // like fetch
